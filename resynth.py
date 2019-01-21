@@ -49,6 +49,7 @@
 #    select_freq_range(min, max=0)
 #    select_freq_std_range(min, max=0))
 #    select_harmonic_partials(fundamental, tolerance=0)
+#    select_chord_partials(chord, transp=0, sensitivity=6)
 #    select_bandwidth_range(min=0, max=1)
 #
 # Then read the file.
@@ -150,6 +151,9 @@ class Resynth:
 		self._freq_std_range = (0, 10000)
 		self._freq_harmonics = None
 		self._freq_harm_tolerance = 0
+		self._freq_chord_pitches = None
+		self._freq_chord_transp = 0
+		self._freq_chord_sensitivity = 0
 		self._bw_range = (0, 1)
 		self._totdur = 0		# total duration spanned by unfiltered partials
 		self._selected_partials_start = 0 # earliest start time, not necc. 1st partial
@@ -315,6 +319,30 @@ class Resynth:
 			partialnum += 1
 		self._freq_harmonics = harms
 		self._freq_harm_tolerance = tolerance
+
+	""" Exclude partials that are not close enough to any of the given chord
+	    pitches.
+	       chord        chord used for matching [pitches in oct.pc]
+	       transp       transpose chord by this interval before matching
+	                    [semitones]
+	       sensitivity  retain partial if interval between mean partial
+	                    frequency and nearest chord pitch is no greater
+	                    than this interval [semitones]
+	    Note that this does not guarantee that you will hear chord notes when
+	    excluding partials, because the retained partials may have high std
+	    (the partial deviates a lot from its mean freq).
+	    NB: Must call before read_file().
+	"""
+	def select_chord_partials(self, chord, transp=0, sensitivity=6):
+		if self._read_file_called:
+			print "Must call select_chord_partials before calling read_file."
+			sys.exit()
+		# cache chord data converted to linear octaves
+		self._freq_chord_pitches = []
+		for pitch in chord:
+			self._freq_chord_pitches.append(rtcmix.octpch(pitch))
+		self._freq_chord_transp = rtcmix.octpch(transp * 0.01)
+		self._freq_chord_sensitivity = rtcmix.octpch(sensitivity * 0.01) * 0.5
 
 	""" Exclude partials whose breakpoint bandwidths (if present) are not all
 	    within this range. Note that a <max> of zero really means zero, not a
@@ -1241,7 +1269,7 @@ class Resynth:
                        [semitones]
 	       strength     the extent to which a retuned partial conforms to a
                        close target pitch in the retune chord [0-1 scalar, or
-                       RTcmix curve table]
+                       RTcmix table handle]
 	       partials     list of partials to retune [default is all]
 	"""
 	def retune_partials(self, chord, transp=0, sensitivity=6, strength=0.9, partials=None):
@@ -1420,7 +1448,7 @@ class Resynth:
 	    out-of-range value, the entire partial is excluded.
 	    breakpoints: tuples of (starttime, freq, amp, [bw])
 	    starttime, endtime: spanning all breakpoints for the partial
-	    Return None if partial filtered, else return partial
+	    Return None if partial filtered, else return partial breakpoints.
 	"""
 	def _filter_partial(self, breakpoints, starttime, endtime):
 
@@ -1493,6 +1521,22 @@ class Resynth:
 					break
 				elif i == (numharms - 1):
 					return None
+
+		# exclude partials that are not close enough to the pitches of a
+		# a user-selected chord
+		if self._freq_chord_pitches != None:
+			srcpitch = rtcmix.octcps(mean)
+			numchordpitches = len(self._freq_chord_pitches)
+			mininterval = 999999.0
+			index = -1
+			for i in range(numchordpitches):
+				targetpitch = self._freq_chord_pitches[i] + self._freq_chord_transp
+				interval = abs(srcpitch - targetpitch)
+				if (interval < mininterval):
+					mininterval = interval
+					index = i
+			if (index < 0 or mininterval > self._freq_chord_sensitivity):
+				return None
 
 		# unfiltered partials
 		return breakpoints

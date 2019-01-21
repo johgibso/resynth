@@ -62,6 +62,8 @@ if do_select:
 		minstd = 0; maxstd = 10000
 	if 'fundamental' in globals():
 		r.select_harmonic_partials(fundamental, tolerance)
+	if 'sel_chord' in globals():
+		r.select_chord_partials(sel_chord, sel_transp, sel_sensitivity)
 else:
 	# Don't actually select for amp, dur, bw, and std, so that we can get
 	# accurate histogram totals for each of these params independently within

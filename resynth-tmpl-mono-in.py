@@ -24,7 +24,7 @@ gain = 24
 
 ### selections (comment out to ignore selection) ############################
 selstart = 0; selend = 0
-minfreq = 60; maxfreq = 0
+#minfreq = 60; maxfreq = 0
 mindur = 0.1; maxdur = mindur + 0.15
 #minamp = 0.0001; maxamp = 0.2
 #minbw = 0.1; maxbw = 0.9
@@ -32,6 +32,9 @@ mindur = 0.1; maxdur = mindur + 0.15
 #minstd = 2; maxstd = 15
 # select harmonic partials above a given fundamental...
 #fundamental = rtcmix.cpspch(8.00); tolerance = 20  # tolerance is % of fund.
+# select partials whose mean freqs are near enough to chord members...
+#sel_chord = resynth.pclist2pitchlist((0.00, 0.04, 0.07), 6, 14)
+#sel_transp=0; sel_sensitivity = 1.0
 
 ### modifications (comment out to skip) #####################################
 seed = 1
@@ -56,8 +59,8 @@ envtab = (0.0005, 0, 0, -8)
 #retune_last = True
 #freqscale = 1.0; freqshift = 0; freqdev = 0.00
 #freqscale = rtcmix.maketable("curve", "nonorm", 10000, 0,0.3,-1, 1,1,0, 2,1); freqshift = 0; freqdev = 0
-#chord = pclist2pitchlist((0.00, 0.02, 0.03, 0.05, 0.07, 0.10), 6, 14)
-transp = 0; sensitivity = 4.0; strength = 1.0
+#chord = resynth.pclist2pitchlist((0.00, 0.02, 0.03, 0.05, 0.07, 0.10), 6, 14)
+#transp = 0; sensitivity = 4.0; strength = 1.0
 #strength = rtcmix.maketable("curve", 1000, 0,1,4, 5,0,0, 6,0)
 # synthesize new partials...
 #sminfreq = sr/9; smaxfreq = sr/4; smult = 2; sgain = -3; sdev = 0.005
