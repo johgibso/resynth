@@ -2,7 +2,7 @@ import rtcmix, resynth
 #maxdispargs = 4096
 rtcmix.set_option("print = 1")
 
-parfile_name = "/Users/johgibso/pieces/almost-an-island/par/branigin02-86-116-noi-L.txt"
+parfile_name = "lake-waves.txt"
 outfile_name = "resynth-tmpl-mono-in.wav"
 #paroutfile_name = "resynth-tmpl-mono-in-par.txt"
 
@@ -23,7 +23,7 @@ printparams = 0   # 0: no, 1: print before processing, 2: print after processing
 gain = 24
 
 ### selections (comment out to ignore selection) ############################
-selstart = 0; selend = selstart + 10
+selstart = 0; selend = 0
 minfreq = 60; maxfreq = 0
 mindur = 0.1; maxdur = mindur + 0.15
 #minamp = 0.0001; maxamp = 0.2
@@ -37,7 +37,7 @@ mindur = 0.1; maxdur = mindur + 0.15
 seed = 1
 
 #-- time --------------------------------------
-#timescale = 1
+timescale = 2
 #timescale_start_points = False
 #additional_timepointscale = 1   # useful when timescale_start_points is true
 #delaytab = rtcmix.maketable("line", "nonorm", 10000, \
