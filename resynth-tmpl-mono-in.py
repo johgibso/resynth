@@ -34,7 +34,7 @@ mindur = 0.1; maxdur = mindur + 0.15
 #fundamental = rtcmix.cpspch(8.00); tolerance = 20  # tolerance is % of fund.
 # select partials whose mean freqs are near enough to chord members...
 #sel_chord = resynth.pclist2pitchlist((0.00, 0.04, 0.07), 6, 14)
-#sel_transp=0; sel_sensitivity = 1.0
+#sel_transp = 0; sel_sensitivity = 1.0
 
 ### modifications (comment out to skip) #####################################
 seed = 1
