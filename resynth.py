@@ -1677,7 +1677,7 @@ class Resynth:
 			rtcmix.WAVETABLE(start, dur, ampt, freqt, pan, self._wavetable)
 		return (start, start + dur)
 
-	""" Play all unfiltered partials.
+	""" Play all unfiltered, unmuted partials.
 	       partials     list of partials to play [default is all]
 	    Return a tuplet of earliest start time and latest end time.
 	"""
