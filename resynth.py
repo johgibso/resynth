@@ -1678,7 +1678,7 @@ class Resynth:
 		return (start, start + dur)
 
 	""" Play all unfiltered partials.
-	       partials     list of partials to retune [default is all]
+	       partials     list of partials to play [default is all]
 	    Return a tuplet of earliest start time and latest end time.
 	"""
 	def play_partials(self, partials=None):
