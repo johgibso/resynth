@@ -84,6 +84,7 @@ if 'lfotype' in globals():
    lmin = rtcmix.maketable("line", "nonorm", 1000, 0,1, 1,0.95, 2,1)
    lmax = rtcmix.maketable("line", "nonorm", 1000, 0,1, 1,1.05, 2,1)
    lseed = 1
+   lsmooth = 90
    ldmin = 0.5; ldmax = 0
 
 #-- bandwidth ---------------------------------

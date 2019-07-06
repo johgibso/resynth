@@ -86,7 +86,7 @@
 #    set_wavetable(table_handle)
 #    set_ampenv2(table_handle)
 #    set_glisstable(table_handle, mindur=0, maxdur=0)
-#    set_lfo(type, rate, min, max, seed=1, mindur=0, maxdur=0)
+#    set_lfo(type, rate, min, max, seed=1, smooth=0, mindur=0, maxdur=0)
 #    set_zero_phase(doit)
 #    set_pan_seed(seed)
 #    set_synth_seed(seed)
@@ -176,6 +176,7 @@ class Resynth:
 		self._lfomin = 0.98
 		self._lfomax = 1.02
 		self._lfoseed = 1
+		self._lfosmooth = 0
 		self._lfodurrange = (0, 0)
 		self._partials = []
 		self._max_partial_index = 0
@@ -1082,15 +1083,18 @@ class Resynth:
 	    string (which is the waveform for makeLFO and type for makerandom). The
 	    only type not supported is makerandom "prob". <rate> is either a 
 	    constant (Hz) or an RTcmix table handle. <min> and <max> are multipliers
-	    that will affect the time-varying frequency of the partial. In fact,
-	    <rate>, <min>, and <max> can be tuples or lists of constants or RTcmix
-	    table handles. Use set_lfo_seed to change the sequence of values pulled
-	    from these lists. <seed> is used only for the random types. The LFO
-	    applies to all partials whose durations, post timescale, are between
-	    mindur and maxdur (where maxdur=0 specifies no upper boundary). The LFO
-	    is a relatively expensive capability.
+		 that will affect the time-varying frequency of the partial. <rate>,
+		 <min>, and <max> can be tuples or lists of constants, as well as single
+		 constants. Use set_lfo_seed to change the sequence of values pulled from
+		 these tuples/lists. <rate>, <min>, and <max> can also be RTcmix table
+		 handles. <seed> and <smooth> are used only for the random types: <seed>
+		 is passed to rtcmix.makerandom, while <smooth> is a percentage for the
+		 smoothing filter that processes the resulting random number stream. The
+		 LFO applies to all partials whose durations, post timescale, are between
+		 mindur and maxdur (where maxdur=0 specifies no upper boundary). The LFO
+		 is a relatively expensive capability.
 	"""
-	def set_lfo(self, type, rate, min, max, seed=1, mindur=0, maxdur=0):
+	def set_lfo(self, type, rate, min, max, seed=1, smooth=0, mindur=0, maxdur=0):
 		self._lfotype = type
 		if type is "even" or type is "linear" or type is "low" or type is "high" \
 				or type is "triangle" or type is "gaussian" or type is "cauchy":
@@ -1101,6 +1105,7 @@ class Resynth:
 		self._lfomin = min
 		self._lfomax = max
 		self._lfoseed = seed
+		self._lfosmooth = smooth
 		self._lfodurrange = (mindur, maxdur)
 
 	""" Seed the random number generator used for panning when using stereo
@@ -1568,18 +1573,32 @@ class Resynth:
 			else:
 				rate = self._lforate
 			if self._is_list(self._lfomin):
-				min = self._lfo_randgen.choice(self._lfomin)
+				lmin = self._lfo_randgen.choice(self._lfomin)
 			else:
-				min = self._lfomin
+				lmin = self._lfomin
 			if self._is_list(self._lfomax):
-				max = self._lfo_randgen.choice(self._lfomax)
+				lmax = self._lfo_randgen.choice(self._lfomax)
 			else:
-				max = self._lfomax
+				lmax = self._lfomax
 			if self._lfotype_israndom:
-				lfo = rtcmix.makerandom(self._lfotype, rate, min, max, self._lfoseed)
+				lfo = rtcmix.makerandom(self._lfotype, rate, lmin, lmax, self._lfoseed)
+				if self._lfosmooth > 0.0:
+					# Use as initial value for smoothing filter the midpoint between
+					# min and max. Otherwise, init value will be zero and will
+					# produce a wild glissando when zero is outside of (min,max).
+					if self._is_rtcmix_handle(lmin):
+						tmin = rtcmix.samptable(lmin, "nointerp", 0)
+					else:
+						tmin = lmin
+					if self._is_rtcmix_handle(lmax):
+						tmax = rtcmix.samptable(lmax, "nointerp", 0)
+					else:
+						tmax = lmax
+					initval = tmin + ((tmax - tmin) * 0.5)
+					lfo = rtcmix.makefilter(lfo, "smooth", self._lfosmooth, initval)
 				self._lfoseed += 1
 			else:
-				lfo = rtcmix.makeLFO(self._lfotype, rate, min, max)
+				lfo = rtcmix.makeLFO(self._lfotype, rate, lmin, lmax)
 			return lfo
 		else:
 			return None
