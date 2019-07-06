@@ -43,7 +43,7 @@
 # First, use any of these methods to filter out partials read from file.
 #
 #    select_partial_range(min, max=0)
-#    select_time_range(min, max=0)
+#    select_time_range(min, max=0, clipend=False)
 #    select_duration_range(min, max=0)
 #    select_amp_range(min, max=0)
 #    select_freq_range(min, max=0)
@@ -145,6 +145,7 @@ class Resynth:
 		self._extended = False	# reading our extended partext format
 		self._partial_range = (0, 0)
 		self._time_range = (0, 0)
+		self._clip_end = False
 		self._duration_range = (0, 0)
 		self._amp_range = (0, 1)
 		self._freq_range = (20, self._nyquist)
@@ -236,14 +237,17 @@ class Resynth:
 		self._partial_range = (min, max)
 
 	""" Exclude partials whose start and end times are not within this range.
-	    Use max = 0 to place no upper limit on time.
+	    Use max = 0 to place no upper limit on time. If clipend is True, accept
+		 a partial even if its end time is later than max, but clip the partial
+		 so that it ends just before max.
 	    NB: Must call before read_file().
 	"""
-	def select_time_range(self, min, max=0):
+	def select_time_range(self, min, max=0, clipend=False):
 		if self._read_file_called:
 			print "Must call select_time_range before calling read_file."
 			sys.exit()
 		self._time_range = (min, max)
+		self._clip_end = clipend
 
 	""" Exclude partials whose total durations are not all within this range.
 	    Use max = 0 to place no upper limit on duration.
@@ -441,6 +445,7 @@ class Resynth:
 						if (partial == None):
 							numskipped += 1
 						else:
+							endtime = partial[-1][0]	# may've been changed by _filter_partial
 							mute = False
 							p = [pindex, numpoints, starttime, endtime, phase, label, mute, partial]
 							partials.append(p)
@@ -449,7 +454,7 @@ class Resynth:
 								earliest_partial_start = starttime
 			lineno += 1
 		self._selected_partials_start = earliest_partial_start
-		print "Can play", self._num_unfiltered_partials, "out of", \
+		print "can play", self._num_unfiltered_partials, "out of", \
 				totalpartials, "partials; skipping", numskipped
 
 		# compute total input duration of job from start of first partial to
@@ -1451,16 +1456,29 @@ class Resynth:
 	    Return None if partial filtered, else return partial breakpoints.
 	"""
 	def _filter_partial(self, breakpoints, starttime, endtime):
-
 		# exclude partials outside of time range
 		if starttime < self._time_range[0] \
 				or	(self._time_range[1] != 0 \
 					and starttime > self._time_range[1]):
 			return None
-		if endtime < self._time_range[0] \
-				or	(self._time_range[1] != 0 \
-					and endtime > self._time_range[1]):
+		if endtime < self._time_range[0]:
 			return None
+		if	self._time_range[1] != 0:
+			if self._clip_end:
+				if	endtime > self._time_range[1]:
+					numbp = len(breakpoints)
+					for i in range(numbp - 1, -1, -1):
+						bp = breakpoints[i]
+						time = bp[0]
+						if time > self._time_range[1]:
+							breakpoints.pop()
+					if len(breakpoints) < 2:	# can't play these
+						return None
+					# zero out last bp amp
+					breakpoints[-1][2] = 0
+			else:
+				if	endtime > self._time_range[1]:
+					return None
 
 		# exclude partials outside of duration range
 		partial_dur = endtime - starttime

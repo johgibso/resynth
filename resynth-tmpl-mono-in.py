@@ -23,7 +23,7 @@ printparams = 0   # 0: no, 1: print before processing, 2: print after processing
 gain = 24
 
 ### selections (comment out to ignore selection) ############################
-selstart = 0; selend = 0
+selstart = 0; selend = 0; clipend = False
 #minfreq = 60; maxfreq = 0
 mindur = 0.1; maxdur = mindur + 0.15
 #minamp = 0.0001; maxamp = 0.2

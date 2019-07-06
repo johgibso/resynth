@@ -34,7 +34,11 @@ if verbosity > 0:
 		rtcmix.set_option("print = 5")
 
 # We always select the freq and time range, even if do_select is false.
-r.select_time_range(selstart, selend)
+#r.select_partial_range(0, 10)	# for debugging
+if 'clipend' in globals():
+	r.select_time_range(selstart, selend, clipend)
+else:
+	r.select_time_range(selstart, selend)
 if 'minfreq' not in globals():
 	minfreq = 20; maxfreq = sr / 2
 r.select_freq_range(minfreq, maxfreq)
