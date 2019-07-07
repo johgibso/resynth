@@ -1079,25 +1079,29 @@ class Resynth:
 		self._glissdurrange = (mindur, maxdur)
 
 	""" Specify an LFO to create for each partial, using values that will be
-	    passed to RTcmix makeLFO or makerandom, depending on the supplied type
-	    string (which is the waveform for makeLFO and type for makerandom). The
-	    only type not supported is makerandom "prob". <rate> is either a 
-	    constant (Hz) or an RTcmix table handle. <min> and <max> are multipliers
-		 that will affect the time-varying frequency of the partial. <rate>,
-		 <min>, and <max> can be tuples or lists of constants, as well as single
-		 constants. Use set_lfo_seed to change the sequence of values pulled from
-		 these tuples/lists. <rate>, <min>, and <max> can also be RTcmix table
-		 handles. <seed> and <smooth> are used only for the random types: <seed>
-		 is passed to rtcmix.makerandom, while <smooth> is a percentage for the
-		 smoothing filter that processes the resulting random number stream. The
-		 LFO applies to all partials whose durations, post timescale, are between
+		 passed to RTcmix makeLFO or makerandom, depending on the supplied type
+		 string (which is the waveform string or handle for makeLFO and random
+		 distribution type string for makerandom). The only type not supported is
+		 makerandom "prob". <rate> is either a constant (Hz) or an RTcmix table
+		 handle. <min> and <max> are multipliers that will affect the
+		 time-varying frequency of the partial. <rate>, <min>, and <max> can be
+		 tuples or lists of constants, as well as single constants. Use
+		 set_lfo_seed to change the sequence of values pulled from these
+		 tuples/lists. <rate>, <min>, and <max> can also be RTcmix table handles.
+		 <seed> and <smooth> are used only for the random types: <seed> is passed
+		 to rtcmix.makerandom, while <smooth> is a percentage for the smoothing
+		 filter that processes the resulting random number stream. The LFO
+		 applies to all partials whose durations, post timescale, are between
 		 mindur and maxdur (where maxdur=0 specifies no upper boundary). The LFO
 		 is a relatively expensive capability.
 	"""
 	def set_lfo(self, type, rate, min, max, seed=1, smooth=0, mindur=0, maxdur=0):
 		self._lfotype = type
-		if type is "even" or type is "linear" or type is "low" or type is "high" \
-				or type is "triangle" or type is "gaussian" or type is "cauchy":
+		if self._is_rtcmix_handle(type):		# waveform in a table handle
+			self._lfotype_israndom = False
+		elif type is "even" or type is "linear" or type is "low" \
+				or type is "high" or type is "triangle" or type is "gaussian" \
+				or type is "cauchy":
 			self._lfotype_israndom = True
 		else:
 			self._lfotype_israndom = False
