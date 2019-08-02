@@ -45,7 +45,7 @@ timescale = 2
 #additional_timepointscale = 1   # useful when timescale_start_points is true
 #delaytab = rtcmix.maketable("line", "nonorm", 10000, \
 #	0,0, 1000,2, sr/2,4); deldev = 0.0
-#quantum = 0.25 / timescale; quantdev = 0.00; quantsmear = 0.01; quantseed = 3; quanttmpl = (1, 1, 1, 0, 1, 0, 1)
+#quantum = 0.25 / timescale; quantdev = 0.00; quantsmear = 0.01; quantseed = 3; quanttmpl = (1, 1, 1, 0, 1, 0, 1); qfmin = 0; qfmax = 0
 
 #-- amplitude ---------------------------------
 #clampminamp = 0.01; clampmaxamp = 0.01

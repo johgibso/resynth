@@ -119,7 +119,7 @@ if do_process and numpartials > 0:
 	if 'delaytab' in globals():
 		r.delay_times(delaytab, deldev)
 	if 'quantum' in globals():
-		r.quantize_times(quantum, quantdev, quantsmear, quanttmpl)
+		r.quantize_times(quantum, quantdev, quantsmear, quanttmpl, qfmin, qfmax)
 
 	if do_play:
 		(starttime, endtime) = r.get_time_bounds()
