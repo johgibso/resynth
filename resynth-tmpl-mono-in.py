@@ -54,6 +54,14 @@ timescale = 2
 #zero_last_amp = True    # within each partial
 #envtab = rtcmix.maketable("curve", 1000, 0,1,1, 0.01,1,-4, 1,0)
 envtab = (0.0005, 0, 0, -8)
+#amplfotype = "square"
+if 'amplfotype' in globals():
+   alrate = rtcmix.maketable("line", "nonorm", 1000, 0,4, 1,12, 2,2)
+   almin = rtcmix.maketable("line", "nonorm", 1000, 0,1, 1,0.95, 2,1)
+   almax = 1.0
+   alseed = 2
+   alsmooth = 5
+   aldmin = 0.5; aldmax = 0
 
 #-- frequency ---------------------------------
 #retune_last = True

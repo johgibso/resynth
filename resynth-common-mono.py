@@ -145,6 +145,8 @@ if do_process and numpartials > 0:
 			r.set_glisstable(glisstab, gdur[0], gdur[1])
 		if 'lfotype' in globals():
 			r.set_lfo(lfotype, lrate, lmin, lmax, lseed, lsmooth, ldmin, ldmax)
+		if 'amplfotype' in globals():
+			r.set_amplfo(amplfotype, alrate, almin, almax, alseed, alsmooth, aldmin, aldmax)
 
 		if 'paroutfile_name' in globals():
 			print "Writing parfile '{:s}'".format(paroutfile_name)

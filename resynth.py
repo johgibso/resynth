@@ -87,6 +87,7 @@
 #    set_ampenv2(table_handle)
 #    set_glisstable(table_handle, mindur=0, maxdur=0)
 #    set_lfo(type, rate, min, max, seed=1, smooth=0, mindur=0, maxdur=0)
+#    set_amplfo(type, rate, min, max, seed=1, smooth=0, mindur=0, maxdur=0)
 #    set_zero_phase(doit)
 #    set_pan_seed(seed)
 #    set_synth_seed(seed)
@@ -94,6 +95,7 @@
 #    set_quantize_seed(seed)
 #    set_gliss_seed(seed)
 #    set_lfo_seed(seed)
+#    set_amplfo_seed(seed)
 #    set_max_disp_args(max)
 #
 # Then play the partials.
@@ -178,6 +180,14 @@ class Resynth:
 		self._lfoseed = 1
 		self._lfosmooth = 0
 		self._lfodurrange = (0, 0)
+		self._amplfotype = None
+		self._amplfotype_israndom = False
+		self._amplforate = 5.0
+		self._amplfomin = 0.0
+		self._amplfomax = 1.0
+		self._amplfoseed = 1
+		self._amplfosmooth = 0
+		self._amplfodurrange = (0, 0)
 		self._partials = []
 		self._max_partial_index = 0
 		self._num_unfiltered_partials = 0
@@ -197,6 +207,8 @@ class Resynth:
 		self._gliss_randgen.seed(5)
 		self._lfo_randgen = random.Random()
 		self._lfo_randgen.seed(6)
+		self._amplfo_randgen = random.Random()
+		self._amplfo_randgen.seed(7)
 		rtcmix.load("WAVETABLE")
 		rtcmix.load("BWESINE")
 
@@ -487,7 +499,7 @@ class Resynth:
 	    failure.
 	    NOTE1: Ignores a time-varying timescale.
 	    NOTE2: Ignores prior calls to set_wavetable, set_ampenv2, 
-	           set_glisstable, and set_lfo.
+	           set_glisstable, set_lfo, and set_amplfo.
 	"""
 	def write_file(self, filename, extended=False, partials=None):
 		if partials == None:
@@ -1078,22 +1090,22 @@ class Resynth:
 		self._glisstable = table_handle
 		self._glissdurrange = (mindur, maxdur)
 
-	""" Specify an LFO to create for each partial, using values that will be
-		 passed to RTcmix makeLFO or makerandom, depending on the supplied type
-		 string (which is the waveform string or handle for makeLFO and random
-		 distribution type string for makerandom). The only type not supported is
-		 makerandom "prob". <rate> is either a constant (Hz) or an RTcmix table
-		 handle. <min> and <max> are multipliers that will affect the
-		 time-varying frequency of the partial. <rate>, <min>, and <max> can be
-		 tuples or lists of constants, as well as single constants. Use
-		 set_lfo_seed to change the sequence of values pulled from these
-		 tuples/lists. <rate>, <min>, and <max> can also be RTcmix table handles.
-		 <seed> and <smooth> are used only for the random types: <seed> is passed
-		 to rtcmix.makerandom, while <smooth> is a percentage for the smoothing
-		 filter that processes the resulting random number stream. The LFO
-		 applies to all partials whose durations, post timescale, are between
-		 mindur and maxdur (where maxdur=0 specifies no upper boundary). The LFO
-		 is a relatively expensive capability.
+	""" Specify an LFO to create for the frequency of each partial, using values
+	    that will be passed to RTcmix makeLFO or makerandom, depending on the
+	    supplied type string (which is the waveform string or handle for makeLFO
+	    and random distribution type string for makerandom). The only type not
+	    supported is makerandom "prob". <rate> is either a constant (Hz) or an
+	    RTcmix table handle. <min> and <max> are multipliers that will affect
+	    the time-varying frequency of the partial. <rate>, <min>, and <max> can
+	    be tuples or lists of constants, as well as single constants. Use
+	    set_lfo_seed to change the sequence of values pulled from these
+	    tuples/lists. <rate>, <min>, and <max> can also be RTcmix table handles.
+	    <seed> and <smooth> are used only for the random types: <seed> is passed
+	    to rtcmix.makerandom, while <smooth> is a percentage for the smoothing
+	    filter that processes the resulting random number stream. The LFO
+	    applies to all partials whose durations, post timescale, are between
+	    mindur and maxdur (where maxdur=0 specifies no upper boundary). The LFO
+	    is a relatively expensive capability.
 	"""
 	def set_lfo(self, type, rate, min, max, seed=1, smooth=0, mindur=0, maxdur=0):
 		self._lfotype = type
@@ -1111,6 +1123,40 @@ class Resynth:
 		self._lfoseed = seed
 		self._lfosmooth = smooth
 		self._lfodurrange = (mindur, maxdur)
+
+	""" Specify an LFO to create for the amplitude of each partial, using values
+	    that will be passed to RTcmix makeLFO or makerandom, depending on the
+	    supplied type string (which is the waveform string or handle for makeLFO
+	    and random distribution type string for makerandom). The only type not
+	    supported is makerandom "prob". <rate> is either a constant (Hz) or an
+	    RTcmix table handle. <min> and <max> are multipliers that will affect
+	    the time-varying amplitude of the partial. <rate>, <min>, and <max> can
+	    be tuples or lists of constants, as well as single constants. Use
+	    set_amplfo_seed to change the sequence of values pulled from these
+	    tuples/lists. <rate>, <min>, and <max> can also be RTcmix table handles.
+	    <seed> and <smooth> are used only for the random types: <seed> is passed
+	    to rtcmix.makerandom, while <smooth> is a percentage for the smoothing
+	    filter that processes the resulting random number stream. The LFO
+	    applies to all partials whose durations, post timescale, are between
+	    mindur and maxdur (where maxdur=0 specifies no upper boundary). The LFO
+	    is a relatively expensive capability.
+	"""
+	def set_amplfo(self, type, rate, min, max, seed=1, smooth=0, mindur=0, maxdur=0):
+		self._amplfotype = type
+		if self._is_rtcmix_handle(type):		# waveform in a table handle
+			self._amplfotype_israndom = False
+		elif type is "even" or type is "linear" or type is "low" \
+				or type is "high" or type is "triangle" or type is "gaussian" \
+				or type is "cauchy":
+			self._amplfotype_israndom = True
+		else:
+			self._amplfotype_israndom = False
+		self._amplforate = rate
+		self._amplfomin = min
+		self._amplfomax = max
+		self._amplfoseed = seed
+		self._amplfosmooth = smooth
+		self._amplfodurrange = (mindur, maxdur)
 
 	""" Seed the random number generator used for panning when using stereo
 	    output. Without this call the seed will be set to 1.
@@ -1144,11 +1190,18 @@ class Resynth:
 		self._gliss_randgen.seed(seed)
 
 	""" Seed the random number generator used for selecting from multiple
-	    LFO values for rate, min, and max. Without this call the seed will be
-	    set to 6.
+	    frequency LFO values for rate, min, and max. Without this call the
+	    seed will be set to 6.
 	"""
 	def set_lfo_seed(self, seed):
 		self._lfo_randgen.seed(seed)
+
+	""" Seed the random number generator used for selecting from multiple
+	    amplitude LFO values for rate, min, and max. Without this call the
+	    seed will be set to 7.
+	"""
+	def set_amplfo_seed(self, seed):
+		self._amplfo_randgen.seed(seed)
 
 	""" Get the list of partials, so that you can mangle it
 	    and then pass it to modify_all_partials.
@@ -1623,6 +1676,45 @@ class Resynth:
 			freqt *= lfo
 		return freqt
 
+	""" Helper for _build_amptab """
+	def _make_amplfo(self, pdur):
+		if self._amplfotype != None and pdur >= self._amplfodurrange[0] \
+				and (self._amplfodurrange[1] == 0 or pdur <= self._amplfodurrange[1]):
+			if self._is_list(self._amplforate):
+				rate = self._amplfo_randgen.choice(self._amplforate)
+			else:
+				rate = self._amplforate
+			if self._is_list(self._amplfomin):
+				lmin = self._amplfo_randgen.choice(self._amplfomin)
+			else:
+				lmin = self._amplfomin
+			if self._is_list(self._amplfomax):
+				lmax = self._amplfo_randgen.choice(self._amplfomax)
+			else:
+				lmax = self._amplfomax
+			if self._amplfotype_israndom:
+				lfo = rtcmix.makerandom(self._amplfotype, rate, lmin, lmax, self._amplfoseed)
+				if self._amplfosmooth > 0.0:
+					# Use as initial value for smoothing filter the midpoint between
+					# min and max. Otherwise, init value will be zero and will
+					# produce a wild change when zero is outside of (min,max).
+					if self._is_rtcmix_handle(lmin):
+						tmin = rtcmix.samptable(lmin, "nointerp", 0)
+					else:
+						tmin = lmin
+					if self._is_rtcmix_handle(lmax):
+						tmax = rtcmix.samptable(lmax, "nointerp", 0)
+					else:
+						tmax = lmax
+					initval = tmin + ((tmax - tmin) * 0.5)
+					lfo = rtcmix.makefilter(lfo, "smooth", self._amplfosmooth, initval)
+				self._amplfoseed += 1
+			else:
+				lfo = rtcmix.makeLFO(self._amplfotype, rate, lmin, lmax)
+			return lfo
+		else:
+			return None
+
 	""" Helper for _play_one_partial """
 	def _build_amptab(self, breakpoints, envsize, amppoints, pdur):
 		if self._ampenv2 == None:
@@ -1652,6 +1744,9 @@ class Resynth:
 			else: # assume _ampenv2 is RTcmix table handle
 				ampt = self._ampenv2 * rtcmix.maketable("line", "nonorm", envsize, amppoints)
 		amp_static = self._ampscale * 32768.0
+		lfo = self._make_amplfo(pdur)
+		if lfo != None:
+			ampt *= lfo
 		return ampt * amp_static
 
 	""" Play one partial.
