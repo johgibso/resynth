@@ -375,9 +375,13 @@ class Resynth:
 		self._bw_range = (min, max)
 
 	def _do_read_file(self, filename):
-		f = open(filename)
-		lines = f.readlines()
-		f.close()
+		try:
+			f = open(filename)
+			lines = f.readlines()
+			f.close()
+		except IOError as err:
+			print "Error opening file: {}".format(err)
+			return None
 		partials = []
 		self._num_unfiltered_partials = totalpartials = 0
 		pindex = numpoints = 0
@@ -395,16 +399,22 @@ class Resynth:
 					print "Reading par-text-partials-extended-format."
 				else:
 					print "Invalid file format type (line 1)."
+					return None
 			elif lineno == 2:
+				if not line.startswith("point-type"):
+					print "Invalid file format: no point-type (line 2)."
+					return None
 				# documentation of data items for each point
-				pass
 			elif lineno == 3:
 				if not line.startswith("partials-count"):
 					print "Invalid file format: no partials-count (line 3)."
+					return None
 				elems = line.split()
 				totalpartials = elems[1]
 			elif lineno == 4:
-				pass
+				if not line.startswith("partials-data"):
+					print "Invalid file format: no partials-data (line 4)."
+					return None
 			else:
 				elems = line.split()
 				if lineno % 2:		# odd line number: header
@@ -488,7 +498,7 @@ class Resynth:
 	def read_file(self, filename):
 		self._read_file_called = True
 		self._partials = self._do_read_file(filename)
-		if len(self._partials) == 0:
+		if self._partials == None or len(self._partials) == 0:
 			sys.exit()
 		return self._num_unfiltered_partials
 
