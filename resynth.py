@@ -344,7 +344,7 @@ class Resynth:
 	                    [semitones]
 	       sensitivity  retain partial if interval between mean partial
 	                    frequency and nearest chord pitch is no greater
-	                    than this interval [semitones]
+	                    than half this interval in either direction [semitones]
 	    Note that this does not guarantee that you will hear chord notes when
 	    excluding partials, because the retained partials may have high std
 	    (the partial deviates a lot from its mean freq).
@@ -1332,8 +1332,8 @@ class Resynth:
 	       chord        chord used for retuning [pitches in oct.pc]
 	       transp       transpose chord by this interval [semitones]
 	       sensitivity  retune if interval between partial frequency and
-	                    nearest chord pitch is no greater than this interval
-                       [semitones]
+	                    nearest chord pitch is no greater than half of this
+	                    interval in either direction [semitones]
 	       strength     the extent to which a retuned partial conforms to a
                        close target pitch in the retune chord [0-1 scalar, or
                        RTcmix table handle]
