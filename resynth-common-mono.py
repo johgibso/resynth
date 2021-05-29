@@ -46,6 +46,10 @@ r.select_freq_range(minfreq, maxfreq)
 if 'seed' in globals():
 	r.set_pan_seed(seed)
 	r.set_synth_seed(seed + 1)
+if 'delseed' in globals():
+	r.set_delay_seed(delseed)
+if 'quantseed' in globals():
+	r.set_quantize_seed(quantseed)
 
 if do_select:
 	if 'mindur' in globals():
