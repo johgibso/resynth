@@ -131,6 +131,8 @@ if do_process and numpartials > 0:
 		timeshift = -starttime
 		print "timeshift: {:.6f}".format(timeshift)
 		r.shift_times(timeshift)
+		if 'clampdurs' in globals():
+			r.clamp_partial_durations(clampdurs[0], clampdurs[1])
 		if 'timescale_start_points' in globals():
 			r.set_timescale_start_points(timescale_start_points)
 		if 'additional_timepointscale' in globals() and additional_timepointscale != 1.0:

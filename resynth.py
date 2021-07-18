@@ -72,6 +72,7 @@
 #    partials = delay_times(delay, deldev=0, fmin=0, fmax=0, partials=None)
 #    partials = quantize_times(quantum, quantdev=0, smear=0, template=0, fmin=0, fmax=0, partials=None)
 #    partials = scale_time_points(scale, partials=None)
+#    partials = clamp_partial_durations(mindur, maxdur, partials=None)
 #    partials = synthesize_new_partials(srcminfreq, srcmaxfreq, freqscale, gain=0, freqdev=0, minfreq=20, partials=None)
 #
 # Before playing partials, optionally set up a few things.
@@ -1491,8 +1492,58 @@ class Resynth:
 			self._num_unfiltered_partials += 1
 		return partials
 
+	""" Helper function for scaling the time points of individual partials.
+	"""
+	def _scale_time_one_partial(self, scale, partial):
+		starttime = partial[2]
+		#print "[{}] starttime: {:.8f}, endtime: {:.8f}".format(partial[0], starttime, partial[3])
+		breakpoints = partial[7]
+		lasttime = -1
+		for bp in breakpoints:
+			thistime = bp[0]
+			#print "thistime: {:.8f}".format(thistime)
+			if thistime > starttime:
+				diff = thistime - starttime
+				diff *= scale
+				bp[0] = starttime + diff
+				#print "altering thistime to: {:.8f}, diff: {:.8f}".format(bp[0], diff)
+			lasttime = bp[0]
+		partial[3] = lasttime		# adjust end time
+		#print "------------------------------------------"
+
+	""" Scale the time points of all partial breakpoints, so that partials
+	    are no shorter than mindur and no longer than maxdur. If a partial's
+	    duration already falls between mindur and maxdur (inclusive), do
+	    nothing to it. Duration changes do not affect the start times of
+	    partials. Partials will still be subject to any time-scaling
+	    configured by set_timescale.
+	"""
+	def clamp_partial_durations(self, mindur, maxdur, partials=None):
+		if partials == None:
+			partials = self._partials
+		if mindur <= 0.0:
+			print "clamp_partial_durations: mindur must be greater than zero."
+			return partials
+		if maxdur <= 0.0 or maxdur < mindur:
+			print "clamp_partial_durations: maxdur must be > 0 and >= mindur."
+			return partials
+		#print "=========================================="
+		for p in partials:
+			starttime = p[2]
+			endtime = p[3]
+			pdur = endtime - starttime
+			scale = None
+			if pdur < mindur:
+				scale = float(mindur) / pdur
+			elif pdur > maxdur:
+				scale = float(maxdur) / pdur
+			if scale != None:
+				self._scale_time_one_partial(scale, p)
+		#print "=========================================="
+		return partials
+
 	""" Scale the time points of all partial breakpoints, relative to the
-	    start time for the partial, which is left unaltered. Partials will
+	    start time for each partial, which is left unaltered. Partials will
 	    still be subject to any time-scaling configured by set_timescale.
 	"""
 	def scale_time_points(self, scale, partials=None):
@@ -1501,23 +1552,10 @@ class Resynth:
 		if scale <= 0.0:
 			print "scale_time_points: scale must be greater than zero."
 			return partials
-		#print "----------------------------- time-point scale: {:.8f}".format(scale)
+		#print "============================= time-point scale: {:.8f}".format(scale)
 		for p in partials:
-			starttime = p[2]
-			#print "[{}] starttime: {:.8f}, endtime: {:.8f}".format(p[0], starttime, p[3])
-			breakpoints = p[7]
-			lasttime = -1
-			for bp in breakpoints:
-				thistime = bp[0]
-				#print "thistime: {:.8f}".format(thistime)
-				if thistime > starttime:
-					diff = thistime - starttime
-					diff *= scale
-					bp[0] = starttime + diff
-					#print "altering thistime to: {:.8f}, diff: {:.8f}".format(bp[0], diff)
-				lasttime = bp[0]
-			p[3] = lasttime		# adjust end time
-			#print "------------------------------------------"
+			self._scale_time_one_partial(scale, p)
+		#print "=========================================="
 		return partials
 
 	""" Omit partial if it meets certain criteria, such as freq, amp,
