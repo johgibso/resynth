@@ -244,7 +244,7 @@ class Resynth:
 	"""
 	def select_partial_range(self, min, max=0):
 		if self._read_file_called:
-			print "Must call select_partial_range before calling read_file."
+			print("Must call select_partial_range before calling read_file.")
 			sys.exit()
 		if max == 0 and self._num_unfiltered_partials != 0:
 			max = self._num_unfiltered_partials
@@ -258,7 +258,7 @@ class Resynth:
 	"""
 	def select_time_range(self, min, max=0, clipend=False):
 		if self._read_file_called:
-			print "Must call select_time_range before calling read_file."
+			print("Must call select_time_range before calling read_file.")
 			sys.exit()
 		self._time_range = (min, max)
 		self._clip_end = clipend
@@ -269,7 +269,7 @@ class Resynth:
 	"""
 	def select_duration_range(self, min, max=0):
 		if self._read_file_called:
-			print "Must call select_duration_range before calling read_file."
+			print("Must call select_duration_range before calling read_file.")
 			sys.exit()
 		self._duration_range = (min, max)
 
@@ -282,7 +282,7 @@ class Resynth:
 	"""
 	def select_amp_range(self, min, max=0):
 		if self._read_file_called:
-			print "Must call select_amp_range before calling read_file."
+			print("Must call select_amp_range before calling read_file.")
 			sys.exit()
 		self._amp_range = (min, max)
 
@@ -292,7 +292,7 @@ class Resynth:
 	"""
 	def select_freq_range(self, min, max=0):
 		if self._read_file_called:
-			print "Must call select_freq_range before calling read_file."
+			print("Must call select_freq_range before calling read_file.")
 			sys.exit()
 		if max == 0:
 			max = self._nyquist
@@ -307,7 +307,7 @@ class Resynth:
 	"""
 	def select_freq_std_range(self, min, max=0):
 		if self._read_file_called:
-			print "Must call select_freq_std_range before calling read_file."
+			print("Must call select_freq_std_range before calling read_file.")
 			sys.exit()
 		if max == 0:
 			max = 1000
@@ -322,10 +322,10 @@ class Resynth:
 	"""
 	def select_harmonic_partials(self, fundamental, tolerance=0):
 		if self._read_file_called:
-			print "Must call select_harmonic_partials before calling read_file."
+			print("Must call select_harmonic_partials before calling read_file.")
 			sys.exit()
 		if fundamental < 20:
-			print "WARNING: select_harmonic_partials: fundamental < 20 Hz"
+			print("WARNING: select_harmonic_partials: fundamental < 20 Hz")
 			return
 		harms = []
 		partialnum = 1
@@ -353,7 +353,7 @@ class Resynth:
 	"""
 	def select_chord_partials(self, chord, transp=0, sensitivity=6):
 		if self._read_file_called:
-			print "Must call select_chord_partials before calling read_file."
+			print("Must call select_chord_partials before calling read_file.")
 			sys.exit()
 		# cache chord data converted to linear octaves
 		self._freq_chord_pitches = []
@@ -371,7 +371,7 @@ class Resynth:
 	"""
 	def select_bandwidth_range(self, min=0, max=1):
 		if self._read_file_called:
-			print "Must call select_bandwidth_range before calling read_file."
+			print("Must call select_bandwidth_range before calling read_file.")
 			sys.exit()
 		self._bw_range = (min, max)
 
@@ -381,7 +381,7 @@ class Resynth:
 			lines = f.readlines()
 			f.close()
 		except IOError as err:
-			print "Error opening file: {}".format(err)
+			print("Error opening file: {}".format(err))
 			return None
 		partials = []
 		self._num_unfiltered_partials = totalpartials = 0
@@ -394,27 +394,27 @@ class Resynth:
 			if lineno == 1:
 				if line.startswith("par-text-partials-format"):
 					self._extended = False
-					print "Reading par-text-partials-format."
+					print("Reading par-text-partials-format.")
 				elif line.startswith("par-text-partials-extended-format"):
 					self._extended = True
-					print "Reading par-text-partials-extended-format."
+					print("Reading par-text-partials-extended-format.")
 				else:
-					print "Invalid file format type (line 1)."
+					print("Invalid file format type (line 1).")
 					return None
 			elif lineno == 2:
 				if not line.startswith("point-type"):
-					print "Invalid file format: no point-type (line 2)."
+					print("Invalid file format: no point-type (line 2).")
 					return None
 				# documentation of data items for each point
 			elif lineno == 3:
 				if not line.startswith("partials-count"):
-					print "Invalid file format: no partials-count (line 3)."
+					print("Invalid file format: no partials-count (line 3).")
 					return None
 				elems = line.split()
 				totalpartials = elems[1]
 			elif lineno == 4:
 				if not line.startswith("partials-data"):
-					print "Invalid file format: no partials-data (line 4)."
+					print("Invalid file format: no partials-data (line 4).")
 					return None
 			else:
 				elems = line.split()
@@ -424,11 +424,11 @@ class Resynth:
 					numpoints = int(elems[1])
 					starttime = float(elems[2])
 					if starttime < 0.0:
-						print "Negative starttime ({:.6f}) for index {}. Correcting.\n".format(starttime, pindex)
+						print("Negative starttime ({:.6f}) for index {}. Correcting.\n".format(starttime, pindex))
 						starttime = 0.0
 						# FIXME: but doesn't fix any breakpoints
 					endtime = float(elems[3])
-					#print "read: [{}] points={}, start={:.5}, end={:.5}".format(pindex, numpoints, starttime, endtime)
+					#print("read: [{}] points={}, start={:.5}, end={:.5}".format(pindex, numpoints, starttime, endtime))
 					if self._extended:
 						phase = float(elems[4])
 						label = int(elems[5])
@@ -464,7 +464,7 @@ class Resynth:
 							bp.append(bw)
 							partial.append(bp)
 						if time != endtime:
-							print "WARNING: Last breakpoint time is not the same as partial end time [partial {}].".format(pindex)
+							print("WARNING: Last breakpoint time is not the same as partial end time [partial {}].".format(pindex))
 						partial = self._filter_partial(partial, starttime, endtime)
 						if (partial == None):
 							numskipped += 1
@@ -478,8 +478,7 @@ class Resynth:
 								earliest_partial_start = starttime
 			lineno += 1
 		self._selected_partials_start = earliest_partial_start
-		print "can play", self._num_unfiltered_partials, "out of", \
-				totalpartials, "partials; skipping", numskipped
+		print("can play {} out of {} partials; skipping".format(self._num_unfiltered_partials, totalpartials, numskipped)
 
 		# compute total input duration of job from start of first partial to
 		# end of last partial
@@ -490,7 +489,7 @@ class Resynth:
 			numpartials = len(partials)
 			lastpartial = partials[numpartials - 1]
 			self._totdur = lastpartial[3] - firstpartial[2]
-			print "total input duration:", self._totdur, "seconds"
+			print("total input duration: {:.6f} seconds".format(self._totdur))
 		return partials
 
 	""" Read a SPEAR par-text-partials-format file, store partials, and return
@@ -570,7 +569,7 @@ class Resynth:
 			lines.append('\n')
 			index += 1
 		if index != self._num_unfiltered_partials:
-			print "WARNING: written partial index does not match number of unfiltered partials"
+			print("WARNING: written partial index does not match number of unfiltered partials")
 		f = open(filename, "w")
 		f.writelines(lines)
 		f.close()
@@ -661,18 +660,18 @@ class Resynth:
 			if tmaxstd < std:
 				tmaxstd = std
 		# print results
-		print "\nHistogram: num. partials with values in requested ranges"
-		print   "---- requested ----------\tactual -------------"
-		print "amp: [{:f}, {:f}]\t[{:f}, {:f}]".format(minamp, maxamp, tminamp, tmaxamp)
-		print "dur: [{:f}, {:f}]\t[{:f}, {:f}]".format(mindur, maxdur, tmindur, tmaxdur)
-		print " bw: [{:f}, {:f}]\t[{:f}, {:f}]".format(minbw, maxbw, tminbw, tmaxbw)
-		print "std: [{:f}, {:f}]\t[{:f}, {:f}]".format(minstd, maxstd, tminstd, tmaxstd)
-		print "------------------------------------------------"
-		print "    band       amp       dur        bw       std"
-		print "------------------------------------------------"
+		print("\nHistogram: num. partials with values in requested ranges")
+		print(  "---- requested ----------\tactual -------------")
+		print("amp: [{:f}, {:f}]\t[{:f}, {:f}]".format(minamp, maxamp, tminamp, tmaxamp))
+		print("dur: [{:f}, {:f}]\t[{:f}, {:f}]".format(mindur, maxdur, tmindur, tmaxdur))
+		print(" bw: [{:f}, {:f}]\t[{:f}, {:f}]".format(minbw, maxbw, tminbw, tmaxbw))
+		print("std: [{:f}, {:f}]\t[{:f}, {:f}]".format(minstd, maxstd, tminstd, tmaxstd))
+		print("------------------------------------------------")
+		print("    band       amp       dur        bw       std")
+		print("------------------------------------------------")
 		for i in range(0, len(ampcounts)):
-			print "{:>5} Hz:   {:6d}    {:6d}    {:6d}    {:6d}".format(bandnames[i], ampcounts[i], durcounts[i], bwcounts[i], stdcounts[i])
-		print ""
+			print("{:>5} Hz:   {:6d}    {:6d}    {:6d}    {:6d}".format(bandnames[i], ampcounts[i], durcounts[i], bwcounts[i], stdcounts[i]))
+		print("")
 
 	""" Print to the screen the parameter ranges exhibited by partials within
 	    the specified frequency range. The time range and the collection of
@@ -750,19 +749,19 @@ class Resynth:
 			minstart = req_minstart
 			maxend = req_maxend
 		# print results
-		print "\nPrint params for time range: {:.3f} - {:.3f}".format(req_minstart, req_maxend)
-		print   "             and freq range: {:.3f} - {:.3f}".format(req_minfreq, req_maxfreq)
-		print   "{:d} partials selected for printing, in these ranges...".format(count)
-		print "---------------------------------------------------"
-		print "time: [{:f}, {:f}]".format(minstart, maxend)
-		print "freq: [{:f}, {:f}]".format(minfreq, maxfreq)
+		print("\nPrint params for time range: {:.3f} - {:.3f}".format(req_minstart, req_maxend))
+		print(  "             and freq range: {:.3f} - {:.3f}".format(req_minfreq, req_maxfreq))
+		print(  "{:d} partials selected for printing, in these ranges...".format(count))
+		print("---------------------------------------------------")
+		print("time: [{:f}, {:f}]".format(minstart, maxend))
+		print("freq: [{:f}, {:f}]".format(minfreq, maxfreq))
 		if count > 0:
-			print " amp: [{:f}, {:f}]".format(minamp, maxamp)
-			print " dur: [{:f}, {:f}]".format(mindur, maxdur)
-			print "  bw: [{:f}, {:f}]".format(minbw, maxbw)
-			print " std: [{:f}, {:f}]".format(minstd, maxstd)
-		print "---------------------------------------------------"
-		print ""
+			print(" amp: [{:f}, {:f}]".format(minamp, maxamp))
+			print(" dur: [{:f}, {:f}]".format(mindur, maxdur))
+			print("  bw: [{:f}, {:f}]".format(minbw, maxbw))
+			print(" std: [{:f}, {:f}]".format(minstd, maxstd))
+		print("---------------------------------------------------")
+		print("")
 
 	""" Use this is you have recompiled RTcmix with a greater number for
 	    MAXDISPARGS in rtcmix/src/include/maxdispargs.h. This lets you work
@@ -792,7 +791,7 @@ class Resynth:
 		if bustype is "out" or bustype is "aux":
 			self._multichan_bustype = bustype
 		else:
-			print "\nERROR: set_multichan_bustype: invalid bus type '{:s}'.".format(bustype)
+			print("\nERROR: set_multichan_bustype: invalid bus type '{:s}'.".format(bustype))
 			sys.exit()
 
 	""" Set overall volume level in dB (0 = no change). """
@@ -806,10 +805,10 @@ class Resynth:
 		if partials == None:
 			partials = self._partials
 		if min < 0.0:
-			print "clamp_amps: min must be => 0.0."
+			print("clamp_amps: min must be => 0.0.")
 			return partials
 		if max < 0.0:
-			print "clamp_amps: max must be => 0.0."
+			print("clamp_amps: max must be => 0.0.")
 			return partials
 		for p in partials:
 			breakpoints = p[7]
@@ -856,7 +855,7 @@ class Resynth:
 		else:
 			isTable = False
 			if scale < 0.0:
-				print "scale_bandwidths: scale must not be less than 0.0."
+				print("scale_bandwidths: scale must not be less than 0.0.")
 				return partials
 		for p in partials:
 			breakpoints = p[7]
@@ -876,10 +875,10 @@ class Resynth:
 		if partials == None:
 			partials = self._partials
 		if min < 0.0 or min > 1.0:
-			print "clamp_bandwidths: min must be between 0.0 and 1.0."
+			print("clamp_bandwidths: min must be between 0.0 and 1.0.")
 			return partials
 		if max < 0.0 or max > 1.0:
-			print "clamp_bandwidths: max must be between 0.0 and 1.0."
+			print("clamp_bandwidths: max must be between 0.0 and 1.0.")
 			return partials
 		for p in partials:
 			breakpoints = p[7]
@@ -925,7 +924,7 @@ class Resynth:
 		if fmax == 0:
 			fmax = self._nyquist
 		if not self._is_rtcmix_handle(delay):
-			print "delay_times: delay must be an RTcmix table handle."
+			print("delay_times: delay must be an RTcmix table handle.")
 			sys.exit()
 		index_factor = rtcmix.tablelen(delay) / self._nyquist
 		for p in partials:
@@ -1004,7 +1003,7 @@ class Resynth:
 					shift += dev
 				if template != 0:
 					if not self._is_list(template):
-						print "quantize_times: template must be 0 or be a list or tuple of numbers."
+						print("quantize_times: template must be 0 or be a list or tuple of numbers.")
 						sys.exit()
 					index = int(newstart / quantum) % len(template)
 					if template[index] == 0:
@@ -1042,7 +1041,7 @@ class Resynth:
 		if self._is_number(timescale):
 			self._timescale = timescale
 		else:
-			print "Resynth does not yet support time-varying timescale."
+			print("Resynth does not yet support time-varying timescale.")
 			sys.exit()
 
 	""" If false, don't change partial start points when time-scaling;
@@ -1076,16 +1075,16 @@ class Resynth:
 	def set_ampenv2(self, table):
 		islist = self._is_list(table)
 		if islist and len(table) != 4:
-			print "set_ampenv2 table spec takes 4 arguments."
+			print("set_ampenv2 table spec takes 4 arguments.")
 			sys.exit()
 		if islist or self._is_rtcmix_handle(table):
 			self._ampenv2 = table
 		else:
-			print "set_ampenv2: table must be a valid list or an RTcmix table."
+			print("set_ampenv2: table must be a valid list or an RTcmix table.")
 			sys.exit()
 
 	def set_eqtable(self, table_handle):
-		print "set_eqtable is deprecated; use eq_partials instead."
+		print("set_eqtable is deprecated; use eq_partials instead.")
 
 	""" Set an RTcmix table (or tables -- see below) to use for time-varying
 	    scaling of the frequencies of a partial. The table values are frequency
@@ -1359,7 +1358,7 @@ class Resynth:
 		self._retune_sensitivity = rtcmix.octpch(sensitivity * 0.01) * 0.5
 		if self._is_number(strength):
 			if (strength < 0 or strength > 1):
-				print "retune strength must be between 0 and 1"
+				print("retune strength must be between 0 and 1")
 				sys.exit()
 		self._retune_strength = strength
 		if partials == None:
@@ -1367,7 +1366,7 @@ class Resynth:
 		for p in partials:
 			breakpoints = p[7]
 			breakpoints = self._retune_one_partial(breakpoints)
-		print self._numretunedpartials, "retuned partials"
+		print("{} retuned partials".format(self._numretunedpartials))
 		return partials
 
 	""" Scale, then offset, all partial frequencies.
@@ -1442,7 +1441,7 @@ class Resynth:
 		if fmax == 0:
 			fmax = self._nyquist
 		if not self._is_rtcmix_handle(eqtable):
-			print "eq_partials: eqtable must be an RTcmix table handle."
+			print("eq_partials: eqtable must be an RTcmix table handle.")
 			sys.exit()
 		index_factor = rtcmix.tablelen(eqtable) / self._nyquist
 		for p in partials:
@@ -1496,20 +1495,20 @@ class Resynth:
 	"""
 	def _scale_time_one_partial(self, scale, partial):
 		starttime = partial[2]
-		#print "[{}] starttime: {:.8f}, endtime: {:.8f}".format(partial[0], starttime, partial[3])
+		#print("[{}] starttime: {:.8f}, endtime: {:.8f}".format(partial[0], starttime, partial[3]))
 		breakpoints = partial[7]
 		lasttime = -1
 		for bp in breakpoints:
 			thistime = bp[0]
-			#print "thistime: {:.8f}".format(thistime)
+			#print("thistime: {:.8f}".format(thistime))
 			if thistime > starttime:
 				diff = thistime - starttime
 				diff *= scale
 				bp[0] = starttime + diff
-				#print "altering thistime to: {:.8f}, diff: {:.8f}".format(bp[0], diff)
+				#print("altering thistime to: {:.8f}, diff: {:.8f}".format(bp[0], diff))
 			lasttime = bp[0]
 		partial[3] = lasttime		# adjust end time
-		#print "------------------------------------------"
+		#print("------------------------------------------")
 
 	""" Scale the time points of all partial breakpoints, so that partials
 	    are no shorter than mindur and no longer than maxdur. If a partial's
@@ -1522,12 +1521,12 @@ class Resynth:
 		if partials == None:
 			partials = self._partials
 		if mindur <= 0.0:
-			print "clamp_partial_durations: mindur must be greater than zero."
+			print("clamp_partial_durations: mindur must be greater than zero.")
 			return partials
 		if maxdur <= 0.0 or maxdur < mindur:
-			print "clamp_partial_durations: maxdur must be > 0 and >= mindur."
+			print("clamp_partial_durations: maxdur must be > 0 and >= mindur.")
 			return partials
-		#print "=========================================="
+		#print("==========================================")
 		for p in partials:
 			starttime = p[2]
 			endtime = p[3]
@@ -1539,7 +1538,7 @@ class Resynth:
 				scale = float(maxdur) / pdur
 			if scale != None:
 				self._scale_time_one_partial(scale, p)
-		#print "=========================================="
+		#print("==========================================")
 		return partials
 
 	""" Scale the time points of all partial breakpoints, relative to the
@@ -1550,12 +1549,12 @@ class Resynth:
 		if partials == None:
 			partials = self._partials
 		if scale <= 0.0:
-			print "scale_time_points: scale must be greater than zero."
+			print("scale_time_points: scale must be greater than zero.")
 			return partials
-		#print "============================= time-point scale: {:.8f}".format(scale)
+		#print("============================= time-point scale: {:.8f}".format(scale))
 		for p in partials:
 			self._scale_time_one_partial(scale, p)
-		#print "=========================================="
+		#print("==========================================")
 		return partials
 
 	""" Omit partial if it meets certain criteria, such as freq, amp,
@@ -1604,7 +1603,7 @@ class Resynth:
 		# exclude partials outside of amp range
 		(minamp, maxamp) = self.get_partial_amp_range(breakpoints)
 		if self._verbose:
-			print "minamp: {:.5f}, maxamp: {:.5f}".format(minamp, maxamp)
+			print("minamp: {:.5f}, maxamp: {:.5f}".format(minamp, maxamp))
 		if minamp < self._amp_range[0]:
 			return None
 		if maxamp > self._amp_range[1] and self._amp_range[1] != 0:
@@ -1613,14 +1612,14 @@ class Resynth:
 		# exclude partials outside of bandwidth range
 		(minbw, maxbw) = self.get_partial_bw_range(breakpoints)
 		if self._verbose:
-			print "minbw: {:.5f}, maxbw: {:.5f}".format(minbw, maxbw)
+			print("minbw: {:.5f}, maxbw: {:.5f}".format(minbw, maxbw))
 		if minbw < self._bw_range[0] or maxbw > self._bw_range[1]:
 			return None
 
 		# exclude partials outside of freq range
 		(minfreq, maxfreq) = self.get_partial_freq_range(breakpoints)
 		if self._verbose:
-			print "minfreq: {:.5f}, maxfreq: {:.5f}".format(minfreq, maxfreq)
+			print("minfreq: {:.5f}, maxfreq: {:.5f}".format(minfreq, maxfreq))
 		if minfreq < self._freq_range[0] or maxfreq > self._freq_range[1]:
 			return None
 
@@ -1629,7 +1628,7 @@ class Resynth:
 		# exclude partials outside of freq std range
 		freqstd = self.get_partial_freq_std(breakpoints, mean)
 		if self._verbose:
-			print "freqstd: {:.5f}".format(freqstd)
+			print("freqstd: {:.5f}".format(freqstd))
 		if freqstd < self._freq_std_range[0]:
 			return None
 		if freqstd > self._freq_std_range[1] and self._freq_std_range[1] != 0:
@@ -1806,10 +1805,10 @@ class Resynth:
 	def _play_one_partial(self, pindex, numpoints, starttime, endtime, phase, breakpoints):
 		start = breakpoints[0][0]
 		if start != starttime:	# does this ever happen?
-			print "WARNING: First breakpoint time is not the same as partial start time (for partial {}).".format(pindex)
+			print("WARNING: First breakpoint time is not the same as partial start time (for partial {}).".format(pindex))
 		end = breakpoints[-1][0]
 		if end != endtime:
-			print "WARNING: Last breakpoint time is not the same as partial end time (for partial {}, endtime: {:.8f}, end: {:.8f}).".format(pindex, endtime, end)
+			print("WARNING: Last breakpoint time is not the same as partial end time (for partial {}, endtime: {:.8f}, end: {:.8f}).".format(pindex, endtime, end))
 		#framedur = breakpoints[1][0] - start	# not valid if time reassignment performed during analysis
 		dur = endtime - starttime
 		if dur <= 0.0:	# should already been trimmed during _filter_partial
@@ -1823,18 +1822,18 @@ class Resynth:
 			# and store *that* in a table. Then use this table to warp the timing
 			# of the freq and amp tables, as well as warp the start time and
 			# duration of the note. 
-			print "calling rtcmix.tablelen; tscale type is", type(self._timescale)
+			print("calling rtcmix.tablelen; tscale type is" + type(self._timescale))
 			tablen = rtcmix.tablelen(self._timescale)
 			index = (start / self._totdur) * tablen
 			tscale = rtcmix.samptable(self._timescale, index)
-			#print "index:", index, "tscale:", tscale
+			#print("index:", index, "tscale:", tscale)
 		dur *= tscale
 		numpoints = len(breakpoints)
 		if self._verbose:
-			print "[{}] -----------------------------------------".format(pindex)
-			print " numpoints: {}, starttime: {:.5f}, endtime: {:.5f}, dur: {:.5f} (post time-scale)".format(numpoints, starttime, endtime, dur)
+			print("[{}] -----------------------------------------".format(pindex))
+			print(" numpoints: {}, starttime: {:.5f}, endtime: {:.5f}, dur: {:.5f} (post time-scale)".format(numpoints, starttime, endtime, dur))
 		if numpoints > self._max_num_breakpoints: 
-			print "WARNING: Partial #{:d}, beginning at {:.5f} seconds with {:.2f} Hz, requires more breakpoints ({:d}) than RTcmix can handle ({:d}). Skipping it.".format(pindex, start, breakpoints[0][1], numpoints, self._max_num_breakpoints)
+			print("WARNING: Partial #{:d}, beginning at {:.5f} seconds with {:.2f} Hz, requires more breakpoints ({:d}) than RTcmix can handle ({:d}). Skipping it.".format(pindex, start, breakpoints[0][1], numpoints, self._max_num_breakpoints))
 			return (0, 0)
 
 		# build breakpoint time,value temp arrays
@@ -1851,7 +1850,7 @@ class Resynth:
 			bw = bp[3]
 			if bw > 0:
 				bw_has_nonzero = True
-			#print "time:", time, "freq:", freq, "amp:", amp, "bw:", bw
+			#print("time:", time, "freq:", freq, "amp:", amp, "bw:", bw)
 			freqpoints.append(time)
 			freqpoints.append(freq)
 			amppoints.append(time)
@@ -1865,18 +1864,18 @@ class Resynth:
 		if self._zero_phase:
 			phase = 0
 		if self._verbose:
-			print "starttime:", starttime, "endtime:", endtime, "phase:", phase
-			print "freqpoints:", ['{:.5f}'.format(item) for item in freqpoints]
-			print " amppoints:", ['{:.5f}'.format(item) for item in amppoints]
-			print "  bwpoints:", ['{:.5f}'.format(item) for item in bwpoints]
+			print("starttime:", starttime, "endtime:", endtime, "phase:", phase)
+			print("freqpoints:", ['{:.5f}'.format(item) for item in freqpoints])
+			print(" amppoints:", ['{:.5f}'.format(item) for item in amppoints])
+			print("  bwpoints:", ['{:.5f}'.format(item) for item in bwpoints])
 		envsize = numpoints * self._kEnvSlotsPerPoint
 
-		#print "making freq env"
+		#print("making freq env")
 		freqt = self._build_freqtab(envsize, freqpoints, dur)
-		#print "making amp env"
+		#print("making amp env")
 		ampt = self._build_amptab(breakpoints, envsize, amppoints, dur)
 		if bw_has_nonzero:
-			#print "making bw env"
+			#print("making bw env")
 			bwt = rtcmix.maketable("line", "nonorm", envsize, bwpoints)
 		else:
 			bwt = 0
@@ -1943,7 +1942,7 @@ class Resynth:
 def pclist2pitchlist(pclist, minoctave=4, maxoctave=14):
 	pitchlist = []
 	if not (minoctave < maxoctave):
-		print "\nERROR: pclist2pitchlist: minoctave must be less than maxoctave."
+		print("\nERROR: pclist2pitchlist: minoctave must be less than maxoctave.")
 		return None
 	for pc in pclist:
 		for octave in range(minoctave, maxoctave):
@@ -1997,7 +1996,7 @@ if __name__ == "__main__":
 		#r.set_wavetable(rtcmix.maketable("wave", 32767, "tri5"))
 
 		(starttime, endtime) = r.get_time_bounds()
-		print "time bounds: ({:.5f}, {:.5f})".format(starttime, endtime)
+		print("time bounds: ({:.5f}, {:.5f})".format(starttime, endtime))
 		timescale = 100
 		#r.scale_time_points(0.005)
 		#r.set_timescale(timescale)
