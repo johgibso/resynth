@@ -214,17 +214,17 @@ class Resynth:
 		rtcmix.load("BWESINE")
 
 	def _is_number(self, thing):
-		if type(thing) is types.IntType or type(thing) is types.FloatType:
+		if type(thing) == types.IntType or type(thing) == types.FloatType:
 			return True
 		return False
 
 	def _is_list(self, thing):
-		if type(thing) is types.TupleType or type(thing) is types.ListType:
+		if type(thing) == types.TupleType or type(thing) == types.ListType:
 			return True
 		return False
 
 	def _is_rtcmix_handle(self, thing):
-		if type(thing) is type(self._wavetable):
+		if type(thing) == type(self._wavetable):
 			return True
 		return False
 
@@ -788,7 +788,7 @@ class Resynth:
 	    where numchans is the second argument to the Resynth constructor.
 	"""
 	def set_multichan_bustype(self, bustype="out"):
-		if bustype is "out" or bustype is "aux":
+		if bustype == "out" or bustype == "aux":
 			self._multichan_bustype = bustype
 		else:
 			print("\nERROR: set_multichan_bustype: invalid bus type '{:s}'.".format(bustype))
@@ -848,7 +848,7 @@ class Resynth:
 		if partials == None:
 			partials = self._partials
 		tablen = 0
-		if type(scale) is not int and type(scale) is not float:
+		if type(scale) != int and type(scale) != float:
 			# we assume it's an RTcmix-specific value
 			isTable = True
 			tablen = rtcmix.tablelen(scale)
@@ -1121,9 +1121,9 @@ class Resynth:
 		self._lfotype = type
 		if self._is_rtcmix_handle(type):		# waveform in a table handle
 			self._lfotype_israndom = False
-		elif type is "even" or type is "linear" or type is "low" \
-				or type is "high" or type is "triangle" or type is "gaussian" \
-				or type is "cauchy":
+		elif type == "even" or type == "linear" or type == "low" \
+				or type == "high" or type == "triangle" or type == "gaussian" \
+				or type == "cauchy":
 			self._lfotype_israndom = True
 		else:
 			self._lfotype_israndom = False
@@ -1155,9 +1155,9 @@ class Resynth:
 		self._amplfotype = type
 		if self._is_rtcmix_handle(type):		# waveform in a table handle
 			self._amplfotype_israndom = False
-		elif type is "even" or type is "linear" or type is "low" \
-				or type is "high" or type is "triangle" or type is "gaussian" \
-				or type is "cauchy":
+		elif type == "even" or type == "linear" or type == "low" \
+				or type == "high" or type == "triangle" or type == "gaussian" \
+				or type == "cauchy":
 			self._amplfotype_israndom = True
 		else:
 			self._amplfotype_israndom = False
@@ -1889,7 +1889,7 @@ class Resynth:
 		if bw_has_nonzero or phase != 0.0:
 			if self._nchans > 2:
 				ch = self._pan_randgen.randint(0, self._nchans - 1)
-				if self._multichan_bustype is "out":
+				if self._multichan_bustype == "out":
 					rtcmix.bus_config("BWESINE", "out " + str(ch))
 				else:
 					rtcmix.bus_config("BWESINE", "aux " + str(ch) + " out")
@@ -1897,7 +1897,7 @@ class Resynth:
 		else:
 			if self._nchans > 2:
 				ch = self._pan_randgen.randint(0, self._nchans - 1)
-				if self._multichan_bustype is "out":
+				if self._multichan_bustype == "out":
 					rtcmix.bus_config("WAVETABLE", "out " + str(ch))
 				else:
 					rtcmix.bus_config("WAVETABLE", "aux " + str(ch) + " out")
