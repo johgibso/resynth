@@ -7,12 +7,12 @@ if histogram and printparams:
 do_select = True
 do_process = True
 do_play = True
-if histogram:
+if 'histogram' in globals() and histogram:
 	do_select = False
 	do_process = False
 	do_play = False
 	print "Printing histogram of selected partials, before processing. Not playing."
-elif printparams:
+elif 'printparams' in globals() and printparams:
 	do_play = False
 	if printparams == 1:
 		do_process = False
@@ -24,10 +24,10 @@ r = resynth.Resynth(sr, numoutchans)
 print "resynth version:", r.version()
 if 'maxdispargs' in globals():
 	r.set_max_disp_args(maxdispargs)
-if use_aux_out:
+if 'use_aux_out' in globals() and use_aux_out:
 	r.set_multichan_bustype("aux")
 
-if verbosity > 0:
+if 'verbosity' in globals() and verbosity > 0:
 	if verbosity % 2:
 		r.set_verbose(True)
 	if verbosity > 1:
@@ -159,20 +159,20 @@ if do_process and numpartials > 0:
 			r.write_file(paroutfile_name, False)
 		else:
 			outch = numoutchans
-			if usereverb:
+			if 'usereverb' in globals() and usereverb:
 				if numoutchans > 2:
 					print "\nERROR: If using reverb, must set <numoutchans> to 1 or 2."
 					import sys
 					sys.exit()
 				outch = 2
-			if writeit:
+			if 'writeit' in globals() and writeit:
 				rtcmix.set_option("clobber=yes", "play=no")
 				rtcmix.rtsetparams(sr, outch)
 				rtcmix.rtoutput(outfile_name, "24")
 			else:
 				rtcmix.rtsetparams(sr, outch)
 			rtcmix.control_rate(cntlrate)
-			if usereverb:
+			if 'usereverb' in globals() and usereverb:
 				rtcmix.load("FREEVERB")
 				if numoutchans == 1:
 					r.set_outbus("aux 0 out")
@@ -190,8 +190,8 @@ if do_process and numpartials > 0:
 					r.set_outbus("out 0")
 				r.play_partials()
 
-if histogram:
+if 'histogram' in globals() and histogram:
 	r.print_histogram(minamp, maxamp, mindur, maxdur, minbw, maxbw, minstd, maxstd)
-elif printparams:
+elif 'printparams' in globals() and printparams:
 	r.print_freq_range_params(minfreq, maxfreq)
 
