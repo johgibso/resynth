@@ -478,7 +478,7 @@ class Resynth:
 								earliest_partial_start = starttime
 			lineno += 1
 		self._selected_partials_start = earliest_partial_start
-		print("can play {} out of {} partials; skipping".format(self._num_unfiltered_partials, totalpartials, numskipped)
+		print("can play {} out of {} partials; skipping".format(self._num_unfiltered_partials, totalpartials, numskipped))
 
 		# compute total input duration of job from start of first partial to
 		# end of last partial
