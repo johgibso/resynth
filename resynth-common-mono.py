@@ -1,9 +1,10 @@
 # this is executed by other scripts that set all the required vars
 
-if histogram and printparams:
-	print "Can't choose histogram and printparams in same run."
-	import sys
-	sys.exit()
+if 'histogram' in globals() and 'printparams' in globals():
+	if histogram and printparams:
+		print "Can't choose histogram and printparams in same run."
+		import sys
+		sys.exit()
 do_select = True
 do_process = True
 do_play = True
