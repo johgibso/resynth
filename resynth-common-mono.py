@@ -2,7 +2,7 @@
 
 if 'histogram' in globals() and 'printparams' in globals():
 	if histogram and printparams:
-		print "Can't choose histogram and printparams in same run."
+		print("Can't choose histogram and printparams in same run.")
 		import sys
 		sys.exit()
 do_select = True
@@ -12,17 +12,17 @@ if 'histogram' in globals() and histogram:
 	do_select = False
 	do_process = False
 	do_play = False
-	print "Printing histogram of selected partials, before processing. Not playing."
+	print("Printing histogram of selected partials, before processing. Not playing.")
 elif 'printparams' in globals() and printparams:
 	do_play = False
 	if printparams == 1:
 		do_process = False
-		print "Printing selected partials, before processing. Not playing."
+		print("Printing selected partials, before processing. Not playing.")
 	else:
-		print "Printing selected partials, after processing. Not playing."
+		print("Printing selected partials, after processing. Not playing.")
 
 r = resynth.Resynth(sr, numoutchans)
-print "resynth version:", r.version()
+print("resynth version:", r.version())
 if 'maxdispargs' in globals():
 	r.set_max_disp_args(maxdispargs)
 if 'use_aux_out' in globals() and use_aux_out:
@@ -128,9 +128,9 @@ if do_process and numpartials > 0:
 
 	if do_play:
 		(starttime, endtime) = r.get_time_bounds()
-		print "input time bounds: [{:.6f}, {:.6f}]".format(starttime, endtime)
+		print("input time bounds: [{:.6f}, {:.6f}]".format(starttime, endtime))
 		timeshift = -starttime
-		print "timeshift: {:.6f}".format(timeshift)
+		print("timeshift: {:.6f}".format(timeshift))
 		r.shift_times(timeshift)
 		if 'clampdurs' in globals():
 			r.clamp_partial_durations(clampdurs[0], clampdurs[1])
@@ -141,7 +141,7 @@ if do_process and numpartials > 0:
 		if 'timescale' in globals() and timescale != 1.0:
 			r.set_timescale(timescale)
 		(starttime, endtime) = r.get_time_bounds()
-		print "output time bounds (pre timescale): [{:.6f}, {:.6f}]".format(starttime, endtime)
+		print("output time bounds (pre timescale): [{:.6f}, {:.6f}]".format(starttime, endtime))
 
 		# set other play-time transformations
 		if 'envtab' in globals():
@@ -156,13 +156,13 @@ if do_process and numpartials > 0:
 			r.set_amplfo(amplfotype, alrate, almin, almax, alseed, alsmooth, aldmin, aldmax)
 
 		if 'paroutfile_name' in globals():
-			print "Writing parfile '{:s}'".format(paroutfile_name)
+			print("Writing parfile '{:s}'".format(paroutfile_name))
 			r.write_file(paroutfile_name, False)
 		else:
 			outch = numoutchans
 			if 'usereverb' in globals() and usereverb:
 				if numoutchans > 2:
-					print "\nERROR: If using reverb, must set <numoutchans> to 1 or 2."
+					print("\nERROR: If using reverb, must set <numoutchans> to 1 or 2.")
 					import sys
 					sys.exit()
 				outch = 2
