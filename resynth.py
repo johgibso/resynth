@@ -132,7 +132,7 @@
 #   in my resynth~ Max external is fruitful enough.
 #
 
-import copy, math, random, rtcmix, sys, types
+import copy, math, random, rtcmix, sys
 
 class Resynth:
 	_kEnvSlotsPerPoint = 2
@@ -214,12 +214,12 @@ class Resynth:
 		rtcmix.load("BWESINE")
 
 	def _is_number(self, thing):
-		if type(thing) == types.IntType or type(thing) == types.FloatType:
+		if type(thing) == type(1) or type(thing) == type(1.0):
 			return True
 		return False
 
 	def _is_list(self, thing):
-		if type(thing) == types.TupleType or type(thing) == types.ListType:
+		if type(thing) == type((0,)) or type(thing) == type([0]):
 			return True
 		return False
 
