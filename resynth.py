@@ -411,7 +411,7 @@ class Resynth:
 					print("Invalid file format: no partials-count (line 3).")
 					return None
 				elems = line.split()
-				totalpartials = elems[1]
+				totalpartials = int(elems[1])
 			elif lineno == 4:
 				if not line.startswith("partials-data"):
 					print("Invalid file format: no partials-data (line 4).")
