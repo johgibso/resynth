@@ -47,7 +47,7 @@
 #    select_duration_range(min, max=0)
 #    select_amp_range(min, max=0)
 #    select_freq_range(min, max=0)
-#    select_freq_std_range(min, max=0))
+#    select_freq_std_range(min, max=0)
 #    select_harmonic_partials(fundamental, tolerance=0)
 #    select_chord_partials(chord, transp=0, sensitivity=6)
 #    select_bandwidth_range(min=0, max=1)
