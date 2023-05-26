@@ -1782,10 +1782,10 @@ class Resynth:
 						hold = min(hold, pdur - atk)
 				if hold > 0:
 					rel = (pdur - atk) - hold
-					tab = rtcmix.maketable("curve", 10000, \
+					tab = rtcmix.maketable("curve", 20000, \
 								0,0,atkc, atk,1,0, pdur-rel,1,relc, pdur,0)
 				else:
-					tab = rtcmix.maketable("curve", 10000, \
+					tab = rtcmix.maketable("curve", 20000, \
 								0,0,atkc, atk,1,relc, pdur,0)
 				ampt = tab * rtcmix.maketable("line", "nonorm", envsize, amppoints)
 			else: # assume _ampenv2 is RTcmix table handle
