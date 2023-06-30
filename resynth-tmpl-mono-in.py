@@ -6,7 +6,7 @@ parfile_name = "lake-waves.txt"
 outfile_name = "resynth-tmpl-mono-in.wav"
 #paroutfile_name = "resynth-tmpl-mono-in-par.txt"
 
-sr = 44100
+sr = 48000
 cntlrate = sr
 numoutchans = 2   # from Resynth to out or to stereo reverb
 use_aux_out = 0   # only for multichan out
