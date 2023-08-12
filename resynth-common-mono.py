@@ -159,33 +159,51 @@ if do_process and numpartials > 0:
 			print("Writing parfile '{:s}'".format(paroutfile_name))
 			r.write_file(paroutfile_name, False)
 		else:
-			outch = numoutchans
 			if 'usereverb' in globals() and usereverb:
-				if numoutchans > 2:
-					print("\nERROR: If using reverb, must set <numoutchans> to 1 or 2.")
+				if (numoutchans != 1 and numoutchans != 2 and numoutchans != 4 and numoutchans != 8):
+					print("\nERROR: If using reverb, must set <numoutchans> to 1, 2, 4, or 8.")
 					import sys
 					sys.exit()
-				outch = 2
 			if 'writeit' in globals() and writeit:
 				rtcmix.set_option("clobber=yes", "play=no")
-				rtcmix.rtsetparams(sr, outch)
+				rtcmix.rtsetparams(sr, numoutchans)
 				rtcmix.rtoutput(outfile_name, "24")
 			else:
-				rtcmix.rtsetparams(sr, outch)
+				rtcmix.rtsetparams(sr, numoutchans)
 			rtcmix.control_rate(cntlrate)
 			if 'usereverb' in globals() and usereverb:
 				rtcmix.load("FREEVERB")
-				if numoutchans == 1:
-					r.set_outbus("aux 0 out")
-					rtcmix.bus_config("FREEVERB", "aux 0 in", "out 0-1")
-				else:
-					r.set_outbus("aux 0-1 out")
-					rtcmix.bus_config("FREEVERB", "aux 0-1 in", "out 0-1")
-				(start, end) = r.play_partials()
 				mix = reverb_mix
 				sz = reverb_roomsize
 				rd = pow(reverb_roomsize + 1, 2)
-				rtcmix.FREEVERB(0, 0, end, 1, sz, 0.1, rd, 0, 100-mix, mix, 100)
+				if numoutchans == 1:
+					r.set_outbus("aux 0 out")
+					(start, end) = r.play_partials()
+					rtcmix.bus_config("FREEVERB", "aux 0 in", "out 0-1")
+					rtcmix.FREEVERB(0, 0, end, 1, sz, 0.1, rd, 0, 100-mix, mix, 100)
+				elif numoutchans == 2:
+					r.set_outbus("aux 0-1 out")
+					(start, end) = r.play_partials()
+					rtcmix.bus_config("FREEVERB", "aux 0-1 in", "out 0-1")
+					rtcmix.FREEVERB(0, 0, end, 1, sz, 0.1, rd, 0, 100-mix, mix, 100)
+				elif numoutchans == 4:
+					r.set_multichan_bustype("aux")
+					(start, end) = r.play_partials()
+					rtcmix.bus_config("FREEVERB", "aux 0-1 in", "out 0-1")
+					rtcmix.FREEVERB(0, 0, end, 1, sz, 0.1, rd, 0, 100-mix, mix, 100)
+					rtcmix.bus_config("FREEVERB", "aux 2-3 in", "out 2-3")
+					rtcmix.FREEVERB(0, 0, end, 1, sz, 0.1, rd, 0, 100-mix, mix, 100)
+				elif numoutchans == 8:
+					r.set_multichan_bustype("aux")
+					(start, end) = r.play_partials()
+					rtcmix.bus_config("FREEVERB", "aux 0-1 in", "out 0-1")
+					rtcmix.FREEVERB(0, 0, end, 1, sz, 0.1, rd, 0, 100-mix, mix, 100)
+					rtcmix.bus_config("FREEVERB", "aux 2-3 in", "out 2-3")
+					rtcmix.FREEVERB(0, 0, end, 1, sz, 0.1, rd, 0, 100-mix, mix, 100)
+					rtcmix.bus_config("FREEVERB", "aux 4-5 in", "out 4-5")
+					rtcmix.FREEVERB(0, 0, end, 1, sz, 0.1, rd, 0, 100-mix, mix, 100)
+					rtcmix.bus_config("FREEVERB", "aux 6-7 in", "out 6-7")
+					rtcmix.FREEVERB(0, 0, end, 1, sz, 0.1, rd, 0, 100-mix, mix, 100)
 			else:
 				if numoutchans == 1:
 					r.set_outbus("out 0")
